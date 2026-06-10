@@ -1,0 +1,165 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #0C0C0E;
+  --bg2:       #111113;
+  --card:      #161618;
+  --border:    #222224;
+  --border2:   #2a2a2c;
+  --text:      #F3F4F6;
+  --text2:     #9CA3AF;
+  --text3:     #666669;
+  --text4:     #555558;
+  --text5:     #333336;
+  --sidebar-active: #0d1825;
+  --nav-dot-active: #FFFFFF;
+  --nav-dot:   #2a2a2c;
+  --bar-divider: #FFFFFF;
+  --filter-bg: #161618;
+  --filter-active-bg: #FFFFFF;
+  --filter-active-text: #000000;
+  --card-shadow: none;
+  --upcoming-bg: #FFFFFF;
+  --upcoming-border: #E5E7EB;
+  --upcoming-name: #111827;
+  --upcoming-meta: #6B7280;
+  --selected-bg: #FFFFFF;
+  --selected-text: #333333;
+  --cal-weekend: #1a1a1c;
+  --cal-weekend-text: #3a3a3c;
+  --var-name-color: #F3F4F6;
+}
+
+body.light {
+  --bg:        #F0F2F7;
+  --bg2:       #FFFFFF;
+  --card:      #FFFFFF;
+  --border:    #E2E4EC;
+  --border2:   #CDD0DB;
+  --text:      #111827;
+  --text2:     #374151;
+  --text3:     #6B7280;
+  --text4:     #9CA3AF;
+  --text5:     #D1D5DB;
+  --sidebar-active: #EEF2FF;
+  --nav-dot-active: #111827;
+  --nav-dot:   #D1D5DB;
+  --bar-divider: #111827;
+  --filter-bg: #FFFFFF;
+  --filter-active-bg: #111827;
+  --filter-active-text: #FFFFFF;
+  --card-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06);
+  --upcoming-bg: #F9FAFB;
+  --upcoming-border: #E5E7EB;
+  --upcoming-name: #111827;
+  --upcoming-meta: #6B7280;
+  --selected-bg: #111827;
+  --selected-text: #FFFFFF;
+  --cal-weekend: #E8EAF0;
+  --cal-weekend-text: #9CA3AF;
+  --var-name-color: #111827;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+button { font-family: 'Inter', sans-serif; cursor: pointer; }
+a { text-decoration: none; }
+
+/* ── Mobile responsive ────────────────────────────────── */
+@media (max-width: 768px) {
+
+  /* Layout */
+  .main-content { margin-left: 0 !important; }
+  .hamburger { display: flex !important; }
+
+  /* Typography */
+  body { font-size: 14px; }
+
+  /* Grids → single column */
+  [style*="grid-template-columns: repeat(3"] {
+    grid-template-columns: 1fr !important;
+  }
+  [style*="grid-template-columns: repeat(4"] {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  [style*="grid-template-columns: 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+  [style*="grid-template-columns: 3fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Flex rows → wrap */
+  [style*="display: flex"][style*="gap: 10"],
+  [style*="display: flex"][style*="gap: 12"],
+  [style*="display: flex"][style*="gap: 14"] {
+    flex-wrap: wrap !important;
+  }
+
+  /* Funnel — scroll horizontally instead of cramping */
+  [style*="alignItems: 'stretch'"] {
+    overflow-x: auto !important;
+    padding-bottom: 8px !important;
+  }
+
+  /* Filter bar */
+  [style*="gap: 2"][style*="background: var(--filter-bg)"] {
+    flex-wrap: wrap !important;
+  }
+
+  /* Cards full width */
+  [style*="flex: 1, minWidth: 0"] {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Calendar cells smaller */
+  [style*="height: 120"] {
+    height: 72px !important;
+    padding: 5px 6px !important;
+  }
+
+  /* Outreach var cards */
+  [style*="margin: '0 48px'"] {
+    margin: 0 12px !important;
+  }
+
+  /* Page title */
+  [style*="fontSize: 28, fontWeight: 800"] {
+    font-size: 22px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  [style*="grid-template-columns: 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Rate cards - force 2 columns on mobile */
+@media (max-width: 767px) {
+  .rate-cards-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .sales-kpi-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* Monthly stats - always 4 columns */
+.monthly-stats-grid {
+  grid-template-columns: repeat(4, 1fr) !important;
+}
