@@ -3,6 +3,6 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  base: '/mediactive-dashboard-v2/',
+  base: '/frm-dashboard-mediactive/',
 })
 
