@@ -14,25 +14,44 @@ function parseRawVars(rows, filterFn) {
   for (let i = 0; i < rows.length; i++) { if (rows[i] && rows[i][1] === 'Name' && rows[i][3] === 'Date') { ds = i+1; break } }
   if (ds < 0) return {}
   const agg = {}
+  const ensure = (n) => { if (!agg[n]) agg[n] = { name: n, A: 0, MS: 0, B: 0, C: 0, D: 0, fuTotal: 0, fuCount: 0, daysTotal: 0, daysCount: 0 } }
   for (let i = ds; i < rows.length; i++) {
-    const r = rows[i]; if (!r || !r[3] || !r[4]) continue
-    const date = toDateStr(r[3]); if (!date) continue
-    if (!filterFn(date)) continue
-    const varN = normName(String(r[4]||'').trim()); if (!varN) continue
-    if (!agg[varN]) agg[varN] = { name: varN, A: 0, MS: 0, B: 0, C: 0, D: 0, fuTotal: 0, fuCount: 0, daysTotal: 0, daysCount: 0 }
-    agg[varN].A++
-    if (r[10] === 'YES') agg[varN].MS++
-    if (r[14] && toDateStr(r[14])) agg[varN].B++
-    if (r[27] && toDateStr(r[27])) {
-      agg[varN].C++
-      const cd = toDateStr(r[27]); let fu = 0
-      for (let fi = 16; fi <= 22; fi++) { if (r[fi]) { const fd = toDateStr(r[fi]); if (fd && fd <= cd) fu++ } }
-      agg[varN].fuTotal += fu; agg[varN].fuCount++
-      const d1 = new Date(toDateStr(r[3])); const d2 = new Date(cd)
-      const diff = Math.round((d2-d1)/(1000*60*60*24))
-      if (diff >= 0) { agg[varN].daysTotal += diff; agg[varN].daysCount++ }
+    const r = rows[i]; if (!r) continue
+    if (r[3] && r[4]) {
+      const dateA = toDateStr(r[3])
+      if (dateA && filterFn(dateA)) {
+        const varN = normName(String(r[4]).trim()); if (varN) {
+          ensure(varN); agg[varN].A++
+          if (r[10] === 'YES') agg[varN].MS++
+        }
+      }
     }
-    if (r[40] && toDateStr(r[40])) agg[varN].D++
+    if (r[14] && r[15]) {
+      const dateB = toDateStr(r[14])
+      if (dateB && filterFn(dateB)) {
+        const varB = normName(String(r[15]).trim()); if (varB) { ensure(varB); agg[varB].B++ }
+      }
+    }
+    if (r[27] && r[28]) {
+      const dateC = toDateStr(r[27])
+      if (dateC && filterFn(dateC)) {
+        const varC = normName(String(r[28]).trim()); if (varC) {
+          ensure(varC); agg[varC].C++
+          const cd = dateC; let fu = 0
+          for (let fi = 16; fi <= 22; fi++) { if (r[fi]) { const fd = toDateStr(r[fi]); if (fd && fd <= cd) fu++ } }
+          agg[varC].fuTotal += fu; agg[varC].fuCount++
+          const d1 = new Date(toDateStr(r[14]) || toDateStr(r[3])); const d2 = new Date(cd)
+          const diff = Math.round((d2-d1)/(1000*60*60*24))
+          if (diff >= 0) { agg[varC].daysTotal += diff; agg[varC].daysCount++ }
+        }
+      }
+    }
+    if (r[3] && r[4] && r[40]) {
+      const dateA = toDateStr(r[3]); const dateD = toDateStr(r[40])
+      if (dateA && dateD && filterFn(dateA)) {
+        const varN = normName(String(r[4]).trim()); if (varN) { ensure(varN); agg[varN].D++ }
+      }
+    }
   }
   return agg
 }
