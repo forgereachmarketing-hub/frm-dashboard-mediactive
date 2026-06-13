@@ -49,23 +49,30 @@ export default function Settings({ config, onSave, isMobile }) {
   const [cfg, setCfg] = useState({ ...config })
   const [msg, setMsg] = useState(null)
   const [busy, setBusy] = useState(false)
-  const [outreachInput, setOutreachInput] = useState(config.outreachSheetId)
+  const [igInput, setIgInput] = useState(config.igSheetId || config.outreachSheetId || '')
+  const [liInput, setLiInput] = useState(config.liSheetId || '')
   const [salesInput, setSalesInput] = useState(config.salesSheetId)
-  const [outreachTabsAvail, setOutreachTabsAvail] = useState(null)
+  const [igTabsAvail, setIgTabsAvail] = useState(null)
+  const [liTabsAvail, setLiTabsAvail] = useState(null)
   const [salesTabsAvail, setSalesTabsAvail] = useState(null)
 
   const set = patch => setCfg(c => ({ ...c, ...patch }))
 
   async function reloadTabs(which) {
-    const input = which === 'outreach' ? outreachInput : salesInput
+    const input = which === 'ig' ? igInput : which === 'li' ? liInput : salesInput
     const id = parseSheetId(input)
     if (!id) { setMsg({ type: 'err', msg: 'Invalid spreadsheet URL or ID' }); return }
     setBusy(true); setMsg(null)
     try {
       const tabs = await fetchTabs(cfg.proxyUrl, id)
-      if (which === 'outreach') {
-        set({ outreachSheetId: id, outreachTabs: tabs.filter(t => cfg.outreachTabs.includes(t)).length ? cfg.outreachTabs.filter(t => tabs.includes(t)) : tabs })
-        setOutreachTabsAvail(tabs)
+      if (which === 'ig') {
+        const kept = tabs.filter(t => (cfg.igTabs || []).includes(t))
+        set({ igSheetId: id, igTabs: kept.length ? kept : tabs })
+        setIgTabsAvail(tabs)
+      } else if (which === 'li') {
+        const kept = tabs.filter(t => (cfg.liTabs || []).includes(t))
+        set({ liSheetId: id, liTabs: kept.length ? kept : tabs })
+        setLiTabsAvail(tabs)
       } else {
         set({ salesSheetId: id, salesTab: tabs.includes(cfg.salesTab) ? cfg.salesTab : (tabs[0] || '') })
         setSalesTabsAvail(tabs)
@@ -103,7 +110,7 @@ export default function Settings({ config, onSave, isMobile }) {
     window.location.reload()
   }
 
-  const canSave = cfg.proxyUrl && cfg.outreachSheetId && cfg.outreachTabs.length > 0 && cfg.salesSheetId && cfg.salesTab
+  const canSave = cfg.proxyUrl && cfg.igSheetId && (cfg.igTabs || []).length > 0 && cfg.salesSheetId && cfg.salesTab
 
   return (
     <div style={{ maxWidth: 720 }}>
@@ -122,19 +129,42 @@ export default function Settings({ config, onSave, isMobile }) {
         </Field>
       </Section>
 
-      <Section title="Outreach sheet">
+      <Section title="Outreach — Instagram sheet">
         <Field label="Spreadsheet URL or ID">
           <div style={{ display: 'flex', gap: 8, flexDirection: isMobile ? 'column' : 'row' }}>
-            <Input value={outreachInput} onChange={setOutreachInput} />
-            <Btn small onClick={() => reloadTabs('outreach')} disabled={busy}>Load tabs</Btn>
+            <Input value={igInput} onChange={setIgInput} />
+            <Btn small onClick={() => reloadTabs('ig')} disabled={busy}>Load tabs</Btn>
           </div>
         </Field>
-        {(outreachTabsAvail || cfg.outreachTabs.length > 0) && (
+        {(igTabsAvail || (cfg.igTabs || []).length > 0) && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
-            {(outreachTabsAvail || cfg.outreachTabs).map(tab => {
-              const on = cfg.outreachTabs.includes(tab)
+            {(igTabsAvail || cfg.igTabs || []).map(tab => {
+              const on = (cfg.igTabs || []).includes(tab)
               return (
-                <button key={tab} onClick={() => set({ outreachTabs: on ? cfg.outreachTabs.filter(t => t !== tab) : [...cfg.outreachTabs, tab] })} style={{
+                <button key={tab} onClick={() => set({ igTabs: on ? (cfg.igTabs || []).filter(t => t !== tab) : [...(cfg.igTabs || []), tab] })} style={{
+                  padding: '6px 12px', borderRadius: 7, fontSize: 12, fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer',
+                  border: '1px solid', borderColor: on ? 'var(--text)' : 'var(--border2)',
+                  background: on ? 'var(--text)' : 'transparent', color: on ? 'var(--bg)' : 'var(--text2)',
+                }}>{tab}</button>
+              )
+            })}
+          </div>
+        )}
+      </Section>
+
+      <Section title="Outreach — LinkedIn sheet">
+        <Field label="Spreadsheet URL or ID (optional — add later if not set up yet)">
+          <div style={{ display: 'flex', gap: 8, flexDirection: isMobile ? 'column' : 'row' }}>
+            <Input value={liInput} onChange={setLiInput} placeholder="Leave blank if not set up yet" />
+            <Btn small onClick={() => reloadTabs('li')} disabled={busy || !liInput}>Load tabs</Btn>
+          </div>
+        </Field>
+        {(liTabsAvail || (cfg.liTabs || []).length > 0) && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
+            {(liTabsAvail || cfg.liTabs || []).map(tab => {
+              const on = (cfg.liTabs || []).includes(tab)
+              return (
+                <button key={tab} onClick={() => set({ liTabs: on ? (cfg.liTabs || []).filter(t => t !== tab) : [...(cfg.liTabs || []), tab] })} style={{
                   padding: '6px 12px', borderRadius: 7, fontSize: 12, fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer',
                   border: '1px solid', borderColor: on ? 'var(--text)' : 'var(--border2)',
                   background: on ? 'var(--text)' : 'transparent', color: on ? 'var(--bg)' : 'var(--text2)',

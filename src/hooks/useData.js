@@ -12,13 +12,27 @@ export function useData(config) {
     setLoading(true)
     setError(null)
     try {
-      const monthResults = await Promise.all(
-        config.outreachTabs.map(tab => fetchTab(config.proxyUrl, config.outreachSheetId, tab))
-      )
-      const sales = await fetchTab(config.proxyUrl, config.salesSheetId, config.salesTab)
-      const months = {}
-      config.outreachTabs.forEach((tab, i) => { months[tab] = monthResults[i] })
-      setData({ months, sales })
+      const igTabs = config.igTabs || []
+      const liTabs = config.liTabs || []
+
+      const [igResults, liResults, sales] = await Promise.all([
+        Promise.all(igTabs.map(tab => fetchTab(config.proxyUrl, config.igSheetId, tab))),
+        liTabs.length > 0 && config.liSheetId
+          ? Promise.all(liTabs.map(tab => fetchTab(config.proxyUrl, config.liSheetId, tab)))
+          : Promise.resolve([]),
+        fetchTab(config.proxyUrl, config.salesSheetId, config.salesTab),
+      ])
+
+      const igMonths = {}
+      igTabs.forEach((tab, i) => { igMonths[tab] = igResults[i] })
+
+      const liMonths = {}
+      liTabs.forEach((tab, i) => { liMonths[tab] = liResults[i] })
+
+      // Merged months for Dashboard/Sales/Tasks (all channels combined)
+      const allMonths = { ...igMonths, ...liMonths }
+
+      setData({ ig: { months: igMonths }, li: { months: liMonths }, months: allMonths, sales })
       setLoadedAt(new Date())
     } catch (e) {
       setError(e.message)

@@ -171,7 +171,7 @@ export default function SetupWizard({ onComplete, isMobile }) {
     try {
       const tabs = await fetchTabs(cfg.proxyUrl, id)
       if (which === 'outreach') {
-        set({ outreachSheetId: id, outreachTabs: tabs })
+        set({ igSheetId: id, igTabs: tabs })
         setOutreachTabsAvail(tabs)
         setStatus({ type: 'ok', msg: `Found ${tabs.length} tabs. Untick any that are not outreach data.` })
       } else {
@@ -185,7 +185,8 @@ export default function SetupWizard({ onComplete, isMobile }) {
   }
 
   function toggleTab(tab) {
-    set({ outreachTabs: cfg.outreachTabs.includes(tab) ? cfg.outreachTabs.filter(t => t !== tab) : [...cfg.outreachTabs, tab] })
+    const cur = cfg.igTabs || []
+    set({ igTabs: cur.includes(tab) ? cur.filter(t => t !== tab) : [...cur, tab] })
   }
 
   async function handleImport(e) {
@@ -202,7 +203,7 @@ export default function SetupWizard({ onComplete, isMobile }) {
   const canNext = {
     0: true,
     1: status?.type === 'ok',
-    2: !!cfg.outreachSheetId && cfg.outreachTabs.length > 0,
+    2: !!cfg.igSheetId && (cfg.igTabs || []).length > 0,
     3: !!cfg.salesSheetId && !!cfg.salesTab,
     4: true,
     5: true,
@@ -301,8 +302,8 @@ export default function SetupWizard({ onComplete, isMobile }) {
 
           {step === 2 && (
             <>
-              <H2>Outreach sheet</H2>
-              <P>This is where you track your daily outreach: connections, replies, and bookings, one tab per month.</P>
+              <H2>Instagram outreach sheet</H2>
+              <P>This is where you track your Instagram outreach: connections, replies, and bookings, one tab per month. You can add the LinkedIn sheet later in Settings.</P>
               <ChoiceTabs value={outreachMode} onChange={setOutreachMode} options={[
                 { key: 'have', label: 'I already have one' },
                 { key: 'need', label: 'I need the template' },
@@ -311,7 +312,7 @@ export default function SetupWizard({ onComplete, isMobile }) {
                 <TemplateBox sheetTemplateId={OUTREACH_TEMPLATE_SHEET_ID} xlsxUrl={OUTREACH_TEMPLATE_XLSX} name="outreach" />
               )}
               {sheetUrlInput('outreach', outreachInput, setOutreachInput)}
-              {outreachTabsAvail && tabPills(outreachTabsAvail, t => cfg.outreachTabs.includes(t), toggleTab)}
+              {outreachTabsAvail && tabPills(outreachTabsAvail, t => (cfg.igTabs || []).includes(t), toggleTab)}
               <StatusMsg status={status} />
             </>
           )}

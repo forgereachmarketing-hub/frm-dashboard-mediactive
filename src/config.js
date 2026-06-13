@@ -1,19 +1,39 @@
-const KEY = 'mediactive_dashboard_config_v1'
+const KEY = 'mediactive_dashboard_config_v2'
 
 export const EMPTY_CONFIG = {
   userName: '',
   proxyUrl: '',
-  outreachSheetId: '',
-  outreachTabs: [],
+  // Instagram outreach sheet
+  igSheetId: '',
+  igTabs: [],
+  // LinkedIn outreach sheet
+  liSheetId: '',
+  liTabs: [],
   salesSheetId: '',
   salesTab: '',
   calendlyToken: '',
+  // Legacy fields (kept for migration)
+  outreachSheetId: '',
+  outreachTabs: [],
 }
 
 export function loadConfig() {
   try {
-    const raw = localStorage.getItem(KEY)
-    if (!raw) return null
+    // Try v2 key first
+    let raw = localStorage.getItem(KEY)
+    if (!raw) {
+      // Try migrating from v1
+      const v1 = localStorage.getItem('mediactive_dashboard_config_v1')
+      if (v1) {
+        const old = JSON.parse(v1)
+        const migrated = migrateConfig(old)
+        if (isComplete(migrated)) {
+          saveConfig(migrated)
+          return migrated
+        }
+      }
+      return null
+    }
     const cfg = JSON.parse(raw)
     if (!isComplete(cfg)) return null
     return { ...EMPTY_CONFIG, ...cfg }
@@ -31,7 +51,18 @@ export function clearConfig() {
 }
 
 export function isComplete(cfg) {
-  return !!(cfg && cfg.proxyUrl && cfg.outreachSheetId && cfg.outreachTabs && cfg.outreachTabs.length > 0 && cfg.salesSheetId && cfg.salesTab)
+  return !!(cfg && cfg.proxyUrl && cfg.igSheetId && cfg.igTabs && cfg.igTabs.length > 0 && cfg.salesSheetId && cfg.salesTab)
+}
+
+// Migrate a v1 config (outreachSheetId/outreachTabs) to v2 (igSheetId/igTabs)
+export function migrateConfig(cfg) {
+  if (!cfg) return cfg
+  const migrated = { ...EMPTY_CONFIG, ...cfg }
+  if (!migrated.igSheetId && migrated.outreachSheetId) {
+    migrated.igSheetId = migrated.outreachSheetId
+    migrated.igTabs = migrated.outreachTabs || []
+  }
+  return migrated
 }
 
 // Accepts a full Google Sheets URL or a raw spreadsheet ID

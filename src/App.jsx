@@ -62,7 +62,7 @@ export default function App() {
     setAppliedFrom(customFrom); setAppliedTo(customTo); setFilter('custom')
   }
 
-  const PAGE_TITLES = { dashboard: getGreeting(config.userName), outreach: 'Outreach', sales: 'Sales Calls', tasks: 'Daily Tasks', settings: 'Settings' }
+  const PAGE_TITLES = { dashboard: getGreeting(config.userName), 'outreach-ig': 'Outreach — Instagram', 'outreach-li': 'Outreach — LinkedIn', sales: 'Sales Calls', tasks: 'Daily Tasks', settings: 'Settings' }
   const isDark = theme === 'dark'
   const showFilter = page !== 'settings'
 
@@ -112,10 +112,11 @@ export default function App() {
             </div>
           ) : data ? (
             <>
-              {page === 'dashboard' && <Dashboard data={data} filter={filter} customFrom={appliedFrom} customTo={appliedTo} dailyStats={dailyStats} theme={theme} isMobile={isMobile} isTablet={isTablet} calendly={calendly} />}
-              {page === 'outreach'  && <Outreach  data={data} filter={filter} customFrom={appliedFrom} customTo={appliedTo} theme={theme} isMobile={isMobile} isTablet={isTablet} />}
-              {page === 'sales'     && <Sales     data={data} filter={filter} customFrom={appliedFrom} customTo={appliedTo} theme={theme} isMobile={isMobile} isTablet={isTablet} />}
-              {page === 'tasks'     && <Tasks     data={data} onDailyStats={setDailyStats} filter={filter} theme={theme} isMobile={isMobile} isTablet={isTablet} />}
+              {page === 'dashboard'    && <Dashboard data={data} filter={filter} customFrom={appliedFrom} customTo={appliedTo} dailyStats={dailyStats} theme={theme} isMobile={isMobile} isTablet={isTablet} calendly={calendly} />}
+              {page === 'outreach-ig' && <Outreach  data={data.ig}  filter={filter} customFrom={appliedFrom} customTo={appliedTo} theme={theme} isMobile={isMobile} isTablet={isTablet} />}
+              {page === 'outreach-li' && <Outreach  data={data.li}  filter={filter} customFrom={appliedFrom} customTo={appliedTo} theme={theme} isMobile={isMobile} isTablet={isTablet} />}
+              {page === 'sales'       && <Sales     data={data} filter={filter} customFrom={appliedFrom} customTo={appliedTo} theme={theme} isMobile={isMobile} isTablet={isTablet} />}
+              {page === 'tasks'       && <Tasks     data={data} onDailyStats={setDailyStats} filter={filter} theme={theme} isMobile={isMobile} isTablet={isTablet} />}
             </>
           ) : null}
         </div>
