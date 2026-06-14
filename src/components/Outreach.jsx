@@ -76,15 +76,17 @@ const ARROW = (dimmed) => (
 
 function VarCard({ v, dimmed, selected, onToggle, isMobile }) {  // mobile-aware
   const steps = [
-    { val: v.A, label: 'Initiated',  color: '#60A5FA' },
-    { val: v.MS, label: 'Media Seen', color: '#F472B6' },
-    { val: v.B, label: 'Replies',    color: '#FB923C' },
-    { val: v.C, label: 'Booked',     color: '#A78BFA' },
+    { val: v.A,  label: 'Initiated',   color: '#60A5FA' },
+    { val: v.MS, label: 'Media Seen',  color: '#F472B6' },
+    { val: v.B,  label: 'Replies',     color: '#FB923C' },
+    { val: v.C,  label: 'Link Sent',   color: '#A78BFA' },
+    { val: v.D,  label: 'Appt Booked', color: '#818CF8' },
   ]
   const rates = [
-    { label: 'MSR', val: v.msr, color: '#F472B6', suffix: '%' },
-    { label: 'PRR', val: v.prr, color: '#FB923C', suffix: '%' },
-    { label: 'ABR', val: v.abr, color: '#A78BFA', suffix: '%' },
+    { label: 'MSR',  val: v.msr,  color: '#F472B6', suffix: '%' },
+    { label: 'PRR',  val: v.prr,  color: '#FB923C', suffix: '%' },
+    { label: 'CSR',  val: v.csr,  color: '#A78BFA', suffix: '%' },
+    { label: 'LTAR', val: v.ltar, color: '#818CF8', suffix: '%' },
   ]
   const secRates = v.C > 0 ? [
     v.avgFu !== null ? { label: 'Avg FU', val: v.avgFu, suffix: 'x' } : null,
@@ -235,13 +237,14 @@ export default function Outreach({ data, filter, customFrom, customTo, isMobile 
       return { ...v, lastUsed, isActive,
         msr: v.A > 0 ? +((v.MS/v.A)*100).toFixed(1) : 0,
         prr: v.A > 0 ? +((v.B/v.A)*100).toFixed(1) : 0,
-        abr: v.A > 0 ? +((v.C/v.A)*100).toFixed(1) : 0,
+        csr: v.A > 0 ? +((v.C/v.A)*100).toFixed(1) : 0,
+        ltar: v.C > 0 ? +((v.D/v.C)*100).toFixed(1) : 0,
         avgFu: v.fuCount > 0 ? +(v.fuTotal/v.fuCount).toFixed(1) : null,
         avgDays: v.daysCount > 0 ? Math.round(v.daysTotal/v.daysCount) : null,
       }
     })
 
-    const tot = vars.reduce((acc, v) => ({ A: acc.A+v.A, MS: acc.MS+v.MS, B: acc.B+v.B, C: acc.C+v.C }), { A:0,MS:0,B:0,C:0 })
+    const tot = vars.reduce((acc, v) => ({ A: acc.A+v.A, MS: acc.MS+v.MS, B: acc.B+v.B, C: acc.C+v.C, D: acc.D+v.D }), { A:0,MS:0,B:0,C:0,D:0 })
     const totFuTotal = vars.reduce((s,v) => s+(v.fuTotal||0), 0)
     const totFuCount = vars.reduce((s,v) => s+(v.fuCount||0), 0)
     const totDaysTotal = vars.reduce((s,v) => s+(v.daysTotal||0), 0)
@@ -250,7 +253,8 @@ export default function Outreach({ data, filter, customFrom, customTo, isMobile 
     tot.avgDays = totDaysCount > 0 ? Math.round(totDaysTotal/totDaysCount) : null
     tot.msr = tot.A > 0 ? +((tot.MS/tot.A)*100).toFixed(1) : 0
     tot.prr = tot.A > 0 ? +((tot.B/tot.A)*100).toFixed(1) : 0
-    tot.abr = tot.A > 0 ? +((tot.C/tot.A)*100).toFixed(1) : 0
+    tot.csr = tot.A > 0 ? +((tot.C/tot.A)*100).toFixed(1) : 0
+    tot.ltar = tot.C > 0 ? +((tot.D/tot.C)*100).toFixed(1) : 0
 
     return { activeVars: vars.filter(v => v.isActive), inactiveVars: vars.filter(v => !v.isActive), tot }
   }, [data, filter, customFrom, customTo])
@@ -261,7 +265,7 @@ export default function Outreach({ data, filter, customFrom, customTo, isMobile 
 
   // Combined selected
   const selVars = [...activeVars, ...inactiveVars].filter(v => selected.has(v.name))
-  const agg = selVars.reduce((acc, v) => ({ A: acc.A+v.A, MS: acc.MS+v.MS, B: acc.B+v.B, C: acc.C+v.C }), { A:0,MS:0,B:0,C:0 })
+  const agg = selVars.reduce((acc, v) => ({ A: acc.A+v.A, MS: acc.MS+v.MS, B: acc.B+v.B, C: acc.C+v.C, D: acc.D+v.D }), { A:0,MS:0,B:0,C:0,D:0 })
 
   const ICONS_OUT = {
     initiated: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>,
@@ -273,12 +277,14 @@ export default function Outreach({ data, filter, customFrom, customTo, isMobile 
     { val: tot.A,  label: 'Initiated',    color: '#60A5FA', icon: ICONS_OUT.initiated },
     { val: tot.MS, label: 'Media Seen',   color: '#F472B6', icon: ICONS_OUT.seen },
     { val: tot.B,  label: 'Pos. Replies', color: '#FB923C', icon: ICONS_OUT.reply },
-    { val: tot.C,  label: 'Appt. Booked', color: '#A78BFA', icon: ICONS_OUT.booked },
+    { val: tot.C,  label: 'Link Sent',    color: '#A78BFA', icon: ICONS_OUT.booked },
+    { val: tot.D,  label: 'Appt. Booked', color: '#818CF8', icon: ICONS_OUT.booked },
   ]
   const mainRates = [
-    { label: 'MSR', val: tot.msr, color: '#F472B6', suffix: '%' },
-    { label: 'PRR', val: tot.prr, color: '#FB923C', suffix: '%' },
-    { label: 'ABR', val: tot.abr, color: '#A78BFA', suffix: '%' },
+    { label: 'MSR',  val: tot.msr,  color: '#F472B6', suffix: '%' },
+    { label: 'PRR',  val: tot.prr,  color: '#FB923C', suffix: '%' },
+    { label: 'CSR',  val: tot.csr,  color: '#A78BFA', suffix: '%' },
+    { label: 'LTAR', val: tot.ltar, color: '#818CF8', suffix: '%' },
   ]
 
   const Divider = ({ label, dim }) => (
@@ -394,7 +400,7 @@ export default function Outreach({ data, filter, customFrom, customTo, isMobile 
           <div style={{ fontSize: 11, color: 'var(--text3)', marginBottom: 12, letterSpacing: '0.08em', fontWeight: 600 }}>SELECTED VARIABLES — COMBINED</div>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
-              {[{ val:agg.A,label:'Initiated',color:'#60A5FA'},{val:agg.MS,label:'Media Seen',color:'#F472B6'},{val:agg.B,label:'Replies',color:'#FB923C'},{val:agg.C,label:'Booked',color:'#A78BFA'}].map((step,i,arr) => (
+              {[{ val:agg.A,label:'Initiated',color:'#60A5FA'},{val:agg.MS,label:'Media Seen',color:'#F472B6'},{val:agg.B,label:'Replies',color:'#FB923C'},{val:agg.C,label:'Link Sent',color:'#A78BFA'},{val:agg.D,label:'Appt Booked',color:'#818CF8'}].map((step,i,arr) => (
                 <>
                   <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5, flexShrink: 0 }}>
                     <div style={{ fontSize: 28, fontWeight: 800, color: step.color, lineHeight: 1 }}>{step.val.toLocaleString()}</div>
@@ -412,9 +418,10 @@ export default function Outreach({ data, filter, customFrom, customTo, isMobile 
             <div style={{ width: 1, background: 'var(--border)', height: 44, margin: '0 28px' }} />
             <div style={{ display: 'flex', alignItems: 'center' }}>
               {[
-                { label:'MSR', val: agg.A>0 ? +((agg.MS/agg.A)*100).toFixed(1):0, color:'#F472B6' },
-                { label:'PRR', val: agg.A>0 ? +((agg.B/agg.A)*100).toFixed(1):0, color:'#FB923C' },
-                { label:'ABR', val: agg.A>0 ? +((agg.C/agg.A)*100).toFixed(1):0, color:'#A78BFA' },
+                { label:'MSR',  val: agg.A>0 ? +((agg.MS/agg.A)*100).toFixed(1):0, color:'#F472B6' },
+                { label:'PRR',  val: agg.A>0 ? +((agg.B/agg.A)*100).toFixed(1):0, color:'#FB923C' },
+                { label:'CSR',  val: agg.A>0 ? +((agg.C/agg.A)*100).toFixed(1):0, color:'#A78BFA' },
+                { label:'LTAR', val: agg.C>0 ? +((agg.D/agg.C)*100).toFixed(1):0, color:'#818CF8' },
               ].map((r,i) => (
                 <>
                   {i > 0 && <div key={`rd${i}`} style={{ width: 1, height: 36, background: 'var(--border2)', margin: '0 20px' }} />}
