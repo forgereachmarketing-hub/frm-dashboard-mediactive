@@ -129,7 +129,8 @@ export default function Dashboard({ data, filter, customFrom, customTo, dailySta
     { icon: ICONS.initiated, count: A,      label: 'Initiated',            color: '#60A5FA' },
     { icon: ICONS.seen,      count: MS,     label: 'Media Seen',           color: '#F472B6' },
     { icon: ICONS.reply,     count: B,      label: 'Positive Replies',     color: '#FB923C' },
-    { icon: ICONS.booked,    count: C,      label: 'Appointments Booked',  color: '#A855F7' },
+    { icon: ICONS.booked,    count: C,      label: 'Booking Links Sent',   color: '#A855F7' },
+    { icon: ICONS.call,      count: D,      label: 'Appointments Booked',  color: '#818CF8' },
     { icon: ICONS.call,      count: total,  label: 'Calls Held',           color: '#FBBF24' },
     { icon: ICONS.closed,    count: closed, label: 'Closed',               color: '#34D399' },
   ]
@@ -138,8 +139,8 @@ export default function Dashboard({ data, filter, customFrom, customTo, dailySta
     { label: 'Positive Reply Rate',      value: A > 0 ? +((B/A)*100).toFixed(1) : 0, suffix: '%', sub: 'Initiated → Replied',   color: '#FB923C' },
     { label: 'Avg Followups',            value: avgFollowups,                          suffix: 'x', sub: 'before booking',        color: '#A78BFA' },
     { label: 'Avg Days to Book',         value: avgDaysToBook,                         suffix: 'd', sub: 'from first contact',    color: '#FBBF24' },
-    { label: 'Appointment Booking Rate', value: A > 0 ? +((C/A)*100).toFixed(1) : 0, suffix: '%', sub: 'Initiated → Booked',    color: '#A855F7' },
-    { label: 'Show Up Rate',             value: C > 0 ? +((total/C)*100).toFixed(1) : 0, suffix: '%', sub: 'Booked → Held',     color: '#FBBF24' },
+    { label: 'Link → Appt Rate',         value: C > 0 ? +((D/C)*100).toFixed(1) : 0, suffix: '%', sub: 'Links → Booked',        color: '#818CF8' },
+    { label: 'Show Up Rate',             value: D > 0 ? +((total/D)*100).toFixed(1) : 0, suffix: '%', sub: 'Booked → Held',     color: '#FBBF24' },
     { label: 'Call Close Rate',          value: total > 0 ? +((closed/total)*100).toFixed(1) : 0, suffix: '%', sub: 'Held → Closed', color: '#34D399' },
   ].filter(r => r.value !== null && r.value !== undefined)
 

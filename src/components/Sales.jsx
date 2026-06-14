@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { TODAY, toDateStr, toSalesDateStr, inRange } from '../utils/data'
+import { toDateStr, toSalesDateStr, inRange } from '../utils/data'
 
 const OBJ_CATS = [
   { key: 'too_expensive', label: 'Too Expensive',      color: '#EF4444', patterns: ['price','expensive','budget','afford','cost','payment','invest','money','fund','cash','financial','runway'] },
@@ -68,10 +68,6 @@ function parseGoal(str) {
   return out
 }
 
-const UPCOMING_CALLS = [
-  { name: 'Blair William',    datetime: new Date('2026-06-06T15:30:00Z'), date: '6 Jun 2026',  time: '17:30', confirmed: false, meet: 'https://calendly.com/events/8dcdb646-4d82-4f10-a790-6ce3dfd72199/google_meet' },
-  { name: 'Savannah Adkins',  datetime: new Date('2026-06-12T18:00:00Z'), date: '12 Jun 2026', time: '20:00', confirmed: true,  meet: 'https://calendly.com/events/21a9c7c6-b668-4334-82f1-320d4c1d5f80/google_meet' },
-]
 
 function CallCard({ r, linkedinMap, isMobile }) {
   const res = (() => {
@@ -192,7 +188,9 @@ export default function Sales({ data, filter, customFrom, customTo, isMobile, is
   const { filtered, linkedinMap, stats } = useMemo(() => {
     if (!data) return { filtered: [], linkedinMap: {}, stats: null }
     const rows = data.sales.slice(1).filter(r => r && r[0])
-    const filtered = rows.filter(r => inRange(toSalesDateStr(r[1]), filter, customFrom, customTo))
+    const filtered = filter === 'all'
+      ? rows
+      : rows.filter(r => inRange(toSalesDateStr(r[1]), filter, customFrom, customTo))
 
     // LinkedIn map from outreach
     const linkedinMap = {}
@@ -233,40 +231,9 @@ export default function Sales({ data, filter, customFrom, customTo, isMobile, is
   if (!stats) return null
   const { total, closed, followUp, closeRate, avgQ, catCounts, maxCat, qDist } = stats
   const avgQColor = avgQ !== null ? (Q_COLORS[Math.round(avgQ)] || '#A78BFA') : '#555558'
-  const upcomingNow = UPCOMING_CALLS.filter(c => c.datetime > TODAY)
 
   return (
     <div>
-      {/* Upcoming */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-        <div style={{ flex: 1, height: 1, background: 'var(--border)' }} /><div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text3)' }}>Upcoming Calls</div><div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
-      </div>
-      <div style={{ background: '#FFFFFF', borderRadius: 14, border: '1px solid #E5E7EB', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', marginBottom: 28, overflow: 'hidden' }}>
-        {upcomingNow.length === 0 ? <div style={{ color: 'var(--text4)', fontSize: 13, padding: '20px 24px' }}>No upcoming calls scheduled</div> : upcomingNow.map((c, ci) => {
-          const li = linkedinMap[c.name.toLowerCase()] || {}
-          return (
-            <div key={c.name} style={{ padding: '20px 24px', borderBottom: ci < upcomingNow.length-1 ? '1px solid var(--border)' : 'none' }}>
-              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 12 }}>
-                <div>
-                  <div style={{ fontSize: 17, fontWeight: 800, color: '#111827', marginBottom: 4 }}>{c.name}</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#6B7280' }}>
-                    <span style={{ color: '#9CA3AF' }}>{ICO.calendar}</span>
-                    {c.date} · {c.time}
-                  </div>
-                </div>
-                {c.confirmed
-                  ? <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 700, color: '#059669', background: '#D1FAE5', padding: '3px 8px', borderRadius: 20 }}>{ICO.check} Confirmed</div>
-                  : <div style={{ fontSize: 11, fontWeight: 700, color: '#D97706', background: '#FEF3C7', padding: '3px 8px', borderRadius: 20 }}>Not Confirmed</div>}
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                <a href={c.meet} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: '#2563EB', fontWeight: 600 }}>{ICO.meet} Join Meet</a>
-                {(c.linkedin || li.linkedin) && <><span style={{ color: 'var(--text2)' }}>·</span><a href={c.linkedin || li.linkedin} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: '#0A66C2', fontWeight: 600 }}>{ICO.linkedin} LinkedIn</a></>}
-              </div>
-            </div>
-          )
-        })}
-        </div>
-
       {/* KPIs */}
       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : isTablet ? '1fr 1fr' : 'repeat(4,1fr)', gap: 12, marginBottom: 14 }} className='sales-kpi-grid'>
         {[
