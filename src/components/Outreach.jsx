@@ -85,8 +85,8 @@ function VarCard({ v, dimmed, selected, onToggle, isMobile }) {  // mobile-aware
   const rates = [
     { label: 'MSR',  val: v.msr,  color: '#F472B6', suffix: '%' },
     { label: 'PRR',  val: v.prr,  color: '#FB923C', suffix: '%' },
-    { label: 'CSR',  val: v.csr,  color: '#A78BFA', suffix: '%' },
-    { label: 'LTAR', val: v.ltar, color: '#818CF8', suffix: '%' },
+    { label: 'CSR', val: v.csr, color: '#A78BFA', suffix: '%' },
+    { label: 'ABR', val: v.abr, color: '#818CF8', suffix: '%' },
   ]
   const secRates = v.C > 0 ? [
     v.avgFu !== null ? { label: 'Avg FU', val: v.avgFu, suffix: 'x' } : null,
@@ -238,7 +238,7 @@ export default function Outreach({ data, filter, customFrom, customTo, isMobile 
         msr: v.A > 0 ? +((v.MS/v.A)*100).toFixed(1) : 0,
         prr: v.A > 0 ? +((v.B/v.A)*100).toFixed(1) : 0,
         csr: v.A > 0 ? +((v.C/v.A)*100).toFixed(1) : 0,
-        ltar: v.C > 0 ? +((v.D/v.C)*100).toFixed(1) : 0,
+        abr: v.A > 0 ? +((v.D/v.A)*100).toFixed(1) : 0,
         avgFu: v.fuCount > 0 ? +(v.fuTotal/v.fuCount).toFixed(1) : null,
         avgDays: v.daysCount > 0 ? Math.round(v.daysTotal/v.daysCount) : null,
       }
@@ -254,7 +254,7 @@ export default function Outreach({ data, filter, customFrom, customTo, isMobile 
     tot.msr = tot.A > 0 ? +((tot.MS/tot.A)*100).toFixed(1) : 0
     tot.prr = tot.A > 0 ? +((tot.B/tot.A)*100).toFixed(1) : 0
     tot.csr = tot.A > 0 ? +((tot.C/tot.A)*100).toFixed(1) : 0
-    tot.ltar = tot.C > 0 ? +((tot.D/tot.C)*100).toFixed(1) : 0
+    tot.abr = tot.A > 0 ? +((tot.D/tot.A)*100).toFixed(1) : 0
 
     return { activeVars: vars.filter(v => v.isActive), inactiveVars: vars.filter(v => !v.isActive), tot }
   }, [data, filter, customFrom, customTo])
@@ -283,8 +283,8 @@ export default function Outreach({ data, filter, customFrom, customTo, isMobile 
   const mainRates = [
     { label: 'MSR',  val: tot.msr,  color: '#F472B6', suffix: '%' },
     { label: 'PRR',  val: tot.prr,  color: '#FB923C', suffix: '%' },
-    { label: 'CSR',  val: tot.csr,  color: '#A78BFA', suffix: '%' },
-    { label: 'LTAR', val: tot.ltar, color: '#818CF8', suffix: '%' },
+    { label: 'CSR', val: tot.csr, color: '#A78BFA', suffix: '%' },
+    { label: 'ABR', val: tot.abr, color: '#818CF8', suffix: '%' },
   ]
 
   const Divider = ({ label, dim }) => (
@@ -420,8 +420,8 @@ export default function Outreach({ data, filter, customFrom, customTo, isMobile 
               {[
                 { label:'MSR',  val: agg.A>0 ? +((agg.MS/agg.A)*100).toFixed(1):0, color:'#F472B6' },
                 { label:'PRR',  val: agg.A>0 ? +((agg.B/agg.A)*100).toFixed(1):0, color:'#FB923C' },
-                { label:'CSR',  val: agg.A>0 ? +((agg.C/agg.A)*100).toFixed(1):0, color:'#A78BFA' },
-                { label:'LTAR', val: agg.C>0 ? +((agg.D/agg.C)*100).toFixed(1):0, color:'#818CF8' },
+                { label:'CSR', val: agg.A>0 ? +((agg.C/agg.A)*100).toFixed(1):0, color:'#A78BFA' },
+                { label:'ABR', val: agg.A>0 ? +((agg.D/agg.A)*100).toFixed(1):0, color:'#818CF8' },
               ].map((r,i) => (
                 <>
                   {i > 0 && <div key={`rd${i}`} style={{ width: 1, height: 36, background: 'var(--border2)', margin: '0 20px' }} />}
